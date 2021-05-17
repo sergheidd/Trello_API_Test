@@ -1,0 +1,238 @@
+{
+	"info": {
+		"_postman_id": "0e1429fc-d0dc-43b1-9348-2c968e170e1a",
+		"name": "Trello_API_Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "TestGlobals",
+			"item": [
+				{
+					"name": "Create a board tests",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check status 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"    pm.response.to.have.status(\"OK\");\r",
+									"})\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Check board name\", function () {\r",
+									"    pm.expect(response.name).to.eql(\"Hello My New World\");\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Check board description\", function () {\r",
+									"    pm.expect(response.desc).to.eql(\"Hello this is my new board\");\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Check color\", function () {\r",
+									"    pm.expect(response.prefs.background).to.eql(\"pink\");\r",
+									"})\r",
+									"\r",
+									"pm.globals.set(\"id\", response.id);\r",
+									"\r",
+									"console.log(response);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}?key={{key}}&token={{token}}&name=Hello My New World&defaultLists=false&desc=Hello this is my new board&prefs_background=pink&prefs_invitations=members",
+							"host": [
+								"{{url}}"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Hello My New World"
+								},
+								{
+									"key": "defaultLabels",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "defaultLists",
+									"value": "false"
+								},
+								{
+									"key": "desc",
+									"value": "Hello this is my new board"
+								},
+								{
+									"key": "prefs_background",
+									"value": "pink"
+								},
+								{
+									"key": "prefs_invitations",
+									"value": "members"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateBoard",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response time is less than 200ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Check that all was changed\", function () {\r",
+									"    var jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.name).to.eql(\"Hello World\");\r",
+									"    pm.expect(jsonData.closed).to.equal(false);\r",
+									"\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:id?token={{token}}&name=Hello World&key={{key}}&background=pink",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":id"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Hello World"
+								},
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "background",
+									"value": "pink"
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete a board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check respons 200\", function () {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})\r",
+									"\r",
+									"pm.globals.unset(\"id\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:id?token=c6877e6c5decfe81416f07a270478e39fa9d50767fd144a813c1012da7c51a98&key=772349213a6591e42569bce71c4d8d74",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":id"
+							],
+							"query": [
+								{
+									"key": "token",
+									"value": "c6877e6c5decfe81416f07a270478e39fa9d50767fd144a813c1012da7c51a98"
+								},
+								{
+									"key": "key",
+									"value": "772349213a6591e42569bce71c4d8d74"
+								},
+								{
+									"key": "",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								},
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
