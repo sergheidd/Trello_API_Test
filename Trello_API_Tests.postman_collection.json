@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0e1429fc-d0dc-43b1-9348-2c968e170e1a",
+		"_postman_id": "6f12a296-c85c-4277-9936-966761de9bdb",
 		"name": "Trello_API_Tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -23,11 +23,11 @@
 									"const response = pm.response.json();\r",
 									"\r",
 									"pm.test(\"Check board name\", function () {\r",
-									"    pm.expect(response.name).to.eql(\"Hello My New World\");\r",
+									"    pm.expect(response.name).to.eql(pm.environment.get(\"boardName\"));\r",
 									"})\r",
 									"\r",
 									"pm.test(\"Check board description\", function () {\r",
-									"    pm.expect(response.desc).to.eql(\"Hello this is my new board\");\r",
+									"    pm.expect(response.desc).to.eql(pm.globals.get(\"desc\"));\r",
 									"})\r",
 									"\r",
 									"pm.test(\"Check color\", function () {\r",
@@ -40,13 +40,38 @@
 								],
 								"type": "text/javascript"
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"\r",
+									"pm.environment.set(\"boardName\", setBoardName());\r",
+									"\r",
+									"function setBoardName () {\r",
+									"    const boardName = \"My new board \" + Date.now();\r",
+									"    return boardName;\r",
+									"}\r",
+									"\r",
+									"pm.globals.set(\"desc\", setDesc());\r",
+									"\r",
+									"function setDesc () {\r",
+									"    const desc = \"Hello this is the description of the board \" + Date.now();\r",
+									"    return desc;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disableUrlEncoding": false
+					},
 					"request": {
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "{{url}}?key={{key}}&token={{token}}&name=Hello My New World&defaultLists=false&desc=Hello this is my new board&prefs_background=pink&prefs_invitations=members",
+							"raw": "{{url}}?key={{key}}&token={{token}}&name={{boardName}}&defaultLists=false&desc={{desc}}&prefs_background=pink&prefs_invitations=members",
 							"host": [
 								"{{url}}"
 							],
@@ -61,7 +86,7 @@
 								},
 								{
 									"key": "name",
-									"value": "Hello My New World"
+									"value": "{{boardName}}"
 								},
 								{
 									"key": "defaultLabels",
@@ -74,7 +99,7 @@
 								},
 								{
 									"key": "desc",
-									"value": "Hello this is my new board"
+									"value": "{{desc}}"
 								},
 								{
 									"key": "prefs_background",
@@ -83,6 +108,191 @@
 								{
 									"key": "prefs_invitations",
 									"value": "members"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Board Info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Check status of the board\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableUrlEncoding": false
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/boards/:id?key={{key}}&token={{token}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"boards",
+								":id"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create List",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.globals.set(\"listName\", listName());\r",
+									"\r",
+									"function listName () {\r",
+									"    var listName = \"My new list \" + Date.now();\r",
+									"    return listName;\r",
+									"\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test (\"Check that list was created\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"})\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
+									"pm.globals.set(\"listID\", response.id);\r",
+									"\r",
+									"pm.test (\"Check List name\", function () {\r",
+									"    pm.expect(response.name).to.be.eql(pm.globals.get(\"listName\"));\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableUrlEncoding": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/lists?key={{key}}&token={{token}}&idBoard={{id}}&name={{listName}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"lists"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "idBoard",
+									"value": "{{id}}"
+								},
+								{
+									"key": "name",
+									"value": "{{listName}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableUrlEncoding": false
+					},
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://api.trello.com/1/cards?key={{key}}&token={{token}}&name=Test Card&idList={{listID}}",
+							"protocol": "https",
+							"host": [
+								"api",
+								"trello",
+								"com"
+							],
+							"path": [
+								"1",
+								"cards"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{key}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								},
+								{
+									"key": "name",
+									"value": "Test Card"
+								},
+								{
+									"key": "idList",
+									"value": "{{listID}}"
 								}
 							]
 						}
@@ -104,22 +314,52 @@
 									"    pm.response.to.have.status(200);\r",
 									"});\r",
 									"\r",
+									"const response = pm.response.json();\r",
+									"\r",
 									"pm.test(\"Check that all was changed\", function () {\r",
-									"    var jsonData = pm.response.json();\r",
-									"    pm.expect(jsonData.name).to.eql(\"Hello World\");\r",
-									"    pm.expect(jsonData.closed).to.equal(false);\r",
+									"    pm.expect(response.id).to.eql(pm.globals.get(\"id\"));\r",
+									"    pm.expect(response.name).to.eql(pm.environment.get(\"newName\"));\r",
+									"    pm.expect(response.closed).to.equal(false);\r",
+									"    pm.expect(response.desc).to.eql(pm.globals.get(\"desc\"));\r",
 									"\r",
 									"})"
 								],
 								"type": "text/javascript"
 							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"setTimeout (function () {}, 500);\r",
+									"\r",
+									"pm.environment.set(\"newName\", newName());\r",
+									"\r",
+									"function newName () {\r",
+									"    const newBoardName = \"New Board Name \" + parseInt(Math.random() * 1000);\r",
+									"    return newBoardName;\r",
+									"}\r",
+									"\r",
+									"pm.globals.set(\"desc\", newDesc());\r",
+									"\r",
+									"function newDesc () {\r",
+									"    const newDesc = \"Hello this is a new description \" + Date.now();\r",
+									"    return newDesc;\r",
+									"}\r",
+									""
+								],
+								"type": "text/javascript"
+							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disableUrlEncoding": false
+					},
 					"request": {
 						"method": "PUT",
 						"header": [],
 						"url": {
-							"raw": "https://api.trello.com/1/boards/:id?token={{token}}&name=Hello World&key={{key}}&background=pink",
+							"raw": "https://api.trello.com/1/boards/:id?token={{token}}&name={{newName}}&key={{key}}&background=pink&desc={{desc}}",
 							"protocol": "https",
 							"host": [
 								"api",
@@ -138,20 +378,19 @@
 								},
 								{
 									"key": "name",
-									"value": "Hello World"
+									"value": "{{newName}}"
 								},
 								{
 									"key": "key",
 									"value": "{{key}}"
 								},
 								{
-									"key": "",
-									"value": "",
-									"disabled": true
-								},
-								{
 									"key": "background",
 									"value": "pink"
+								},
+								{
+									"key": "desc",
+									"value": "{{desc}}"
 								}
 							],
 							"variable": [
@@ -175,17 +414,26 @@
 									"    pm.response.to.have.status(200)\r",
 									"})\r",
 									"\r",
-									"pm.globals.unset(\"id\");"
+									"pm.globals.unset(\"id\");\r",
+									"pm.environment.unset(\"boardName\");\r",
+									"pm.environment.unset(\"newName\");\r",
+									"pm.globals.unset(\"desc\");\r",
+									"pm.environment.unset(\"New Name\");\r",
+									"pm.globals.unset(\"listID\");\r",
+									"pm.globals.unset(\"listName\");"
 								],
 								"type": "text/javascript"
 							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disableUrlEncoding": false
+					},
 					"request": {
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "https://api.trello.com/1/boards/:id?token=c6877e6c5decfe81416f07a270478e39fa9d50767fd144a813c1012da7c51a98&key=772349213a6591e42569bce71c4d8d74",
+							"raw": "https://api.trello.com/1/boards/:id?token={{token}}&key={{key}}",
 							"protocol": "https",
 							"host": [
 								"api",
@@ -200,11 +448,11 @@
 							"query": [
 								{
 									"key": "token",
-									"value": "c6877e6c5decfe81416f07a270478e39fa9d50767fd144a813c1012da7c51a98"
+									"value": "{{token}}"
 								},
 								{
 									"key": "key",
-									"value": "772349213a6591e42569bce71c4d8d74"
+									"value": "{{key}}"
 								},
 								{
 									"key": "",
