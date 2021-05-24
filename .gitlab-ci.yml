@@ -1,7 +1,0 @@
-stage:
-  - test
-postman_test:
-  stage: test
-  image: postman/newman_alpine33
-  script:
-    - newman --version
